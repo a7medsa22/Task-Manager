@@ -18,26 +18,103 @@ components:
         _id:
           type: string
           description: The auto-generated id of the task
+          readOnly: true
         name:
           type: string
           description: The name of the task
+          example: Buy groceries
+        description:
+          type: string
+          description: Detailed description of the task
+          example: Remember to buy milk, eggs, and bread.
+        priority:
+          type: string
+          description: Priority of the task
+          enum: ['low', 'medium', 'high']
+          default: 'medium'
+          example: 'high'
+        dueDate:
+          type: string
+          format: date
+          description: Due date for the task
+          example: '2024-12-31'
         completed:
           type: boolean
           description: The completion status of the task
+          default: false
         createdAt:
           type: string
           format: date-time
           description: The date the task was created
+          readOnly: true
         updatedAt:
           type: string
           format: date-time
           description: The date the task was last updated
+          readOnly: true
+    TaskInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the task
+          example: Buy groceries
+        description:
+          type: string
+          description: Detailed description of the task
+          example: Remember to buy milk, eggs, and bread.
+        priority:
+          type: string
+          description: Priority of the task
+          enum: ['low', 'medium', 'high']
+          default: 'medium'
+          example: 'high'
+        dueDate:
+          type: string
+          format: date
+          description: Due date for the task
+          example: '2024-12-31'
+        completed:
+          type: boolean
+          description: Whether the task is completed
+          default: false
 
 paths:
   /api/v1/tasks:
     get:
       summary: Get all tasks
-      description: Retrieve a list of all tasks
+      description: Retrieve a list of all tasks. Can be filtered by 'completed' status or 'priority', and sorted by 'dueDate' or 'priority'.
+      parameters:
+        - name: completed
+          in: query
+          description: Filter tasks by completion status
+          required: false
+          schema:
+            type: boolean
+        - name: priority
+          in: query
+          description: Filter tasks by priority
+          required: false
+          schema:
+            type: string
+            enum: ['low', 'medium', 'high']
+        - name: sortBy
+          in: query
+          description: Sort tasks by 'dueDate' or 'priority'
+          required: false
+          schema:
+            type: string
+            enum: ['dueDate', 'priority']
+        - name: order
+          in: query
+          description: Order of sorting ('asc' or 'desc')
+          required: false
+          schema:
+            type: string
+            enum: ['asc', 'desc']
+            default: 'asc'
       responses:
         '200':
           description: A list of tasks
@@ -55,14 +132,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - name
-              properties:
-                name:
-                  type: string
-                completed:
-                  type: boolean
+              $ref: '#/components/schemas/TaskInput'
       responses:
         '201':
           description: Task created successfully
@@ -70,6 +140,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid input
 
   /api/v1/tasks/{id}:
     parameters:
@@ -95,15 +167,11 @@ paths:
       summary: Update a task
       description: Update a specific task by its ID
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                completed:
-                  type: boolean
+              $ref: '#/components/schemas/TaskInput' # Can be a partial update schema
       responses:
         '200':
           description: Task updated successfully
@@ -111,6 +179,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
+        '400':
+          description: Invalid input
         '404':
           description: Task not found
     delete:
@@ -120,4 +190,4 @@ paths:
         '200':
           description: Task deleted successfully
         '404':
-          description: Task not found 
+          description: Task not found
