@@ -29,19 +29,6 @@ A robust RESTful API for task management, built with Node.js, Express, and Mongo
 - MongoDB (local or Atlas)
 - npm or yarn
 
-## Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/Task-Manager.git
-cd Task-Manager
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
 3. Create a `config.env` file in the root directory:
 ```env
 PORT=5000
